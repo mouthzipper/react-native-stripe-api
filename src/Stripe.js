@@ -2,7 +2,7 @@
 
 const REQM = ' is required';
 const STRIPE_URL = 'https://api.stripe.com/v1/';
-
+const axios = require('axios');
 
 class Stripe {
 
@@ -29,19 +29,20 @@ class Stripe {
    */
   async stripePostRequest(resource: string, properties: Object): Promise {
     const body = Object.entries(properties)
-     .map(([key, value]) => `card[${key}]=${value}`)
+     .map(([key, value]) => `${key}=${value}`)
      .reduce((previous, current) => `${previous}&${current}`, '');
 
-    const result = await fetch(`${STRIPE_URL}${resource}`, {
-      method: 'POST',
+    const result = await axios({
+      url: `${STRIPE_URL}${resource}`,
+      method: 'post',
       headers: {
         ...this.defaultHeader(),
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body,
+      data: body,
     });
 
-    return result.json();
+    return result.data;
   }
 
   /**
@@ -56,7 +57,13 @@ class Stripe {
     if (!info.exp_year) throw new Error(`expYear${REQM}`);
     if (!info.cvc) throw new Error(`cvc${REQM}`);
 
-    const card = Object.assign({}, info);
+    const card = {};
+    Object.keys(info).forEach(key => {
+      if (info) {
+        card[`card[${key}]`] = info[key];
+      }
+      return;
+    });
     return this.stripePostRequest('tokens', card);
   }
 }

@@ -54,5 +54,8 @@
     "babel-polyfill": "6.9.1",
     "react": "15.1.0",
     "react-native": "0.27.2"
+  },
+  "dependencies": {
+    "axios": "^0.18.0"
   }
 }
